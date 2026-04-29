@@ -1,0 +1,16 @@
+[package]
+name = "nozzle"
+version = "0.1.0"
+edition = "2021"
+description = "Rust bindings for nozzle GPU texture sharing"
+license = "MIT"
+links = "nozzle"
+
+[build-dependencies]
+cmake = "0.1"
+bindgen = "0.71"
+
+[dependencies]
+
+[features]
+default = []
