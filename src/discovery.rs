@@ -10,7 +10,7 @@ pub fn enumerate_senders() -> crate::error::Result<Vec<SenderInfo>> {
 
     let rc = unsafe { ffi::nozzle_enumerate_senders(&mut array) };
     if rc != 0 {
-        let _ = check(rc);
+        let _ = check(rc as _);
         return Ok(Vec::new());
     }
 
@@ -25,7 +25,7 @@ pub fn enumerate_senders() -> crate::error::Result<Vec<SenderInfo>> {
             name: crate::cstr_to_string(item.name),
             application_name: crate::cstr_to_string(item.application_name),
             id: crate::cstr_to_string(item.id),
-            backend: crate::types::BackendType::from_raw(item.backend as u32),
+            backend: crate::types::BackendType::from_raw(item.backend as _),
         })
         .collect()
     };
