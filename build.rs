@@ -19,16 +19,20 @@ fn main() {
 
     // platform-specific linking — must match nozzle CMakeLists.txt
     if cfg!(target_os = "macos") {
-        println!("cargo:rustc-link-framework=Metal");
-        println!("cargo:rustc-link-framework=IOSurface");
-        println!("cargo:rustc-link-framework=Foundation");
-        println!("cargo:rustc-link-framework=CoreFoundation");
-        println!("cargo:rustc-link-framework=OpenGL");
-        println!("cargo:rustc-link-framework=CoreGraphics");
+        println!("cargo:rustc-link-lib=framework=Metal");
+        println!("cargo:rustc-link-lib=framework=IOSurface");
+        println!("cargo:rustc-link-lib=framework=Foundation");
+        println!("cargo:rustc-link-lib=framework=CoreFoundation");
+        println!("cargo:rustc-link-lib=framework=OpenGL");
+        println!("cargo:rustc-link-lib=framework=CoreGraphics");
         println!("cargo:rustc-link-lib=objc");
         println!("cargo:rustc-link-lib=c++");
     } else if cfg!(target_os = "linux") {
         println!("cargo:rustc-link-lib=stdc++");
+        println!("cargo:rustc-link-lib=drm");
+        println!("cargo:rustc-link-lib=gbm");
+        println!("cargo:rustc-link-lib=EGL");
+        println!("cargo:rustc-link-lib=GL");
     } else if cfg!(target_os = "windows") {
         println!("cargo:rustc-link-lib=d3d11");
         println!("cargo:rustc-link-lib=dxgi");

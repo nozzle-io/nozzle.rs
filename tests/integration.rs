@@ -126,7 +126,8 @@ fn test_invalid_sender_name() {
 
     let result = Sender::create(&desc);
     assert!(result.is_err());
-    assert_eq!(result.unwrap_err().code, ErrorCode::InvalidArgument);
+    let err = result.err().unwrap();
+    assert_eq!(err.code, ErrorCode::InvalidArgument);
 }
 
 #[test]
