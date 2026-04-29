@@ -34,7 +34,7 @@ impl Sender {
 
         let mut sender_ptr: *mut ffi::NozzleSender = ptr::null_mut();
         let rc = unsafe { ffi::nozzle_sender_create(&c_desc, &mut sender_ptr) };
-        check(rc)?;
+        check(rc as u32)?;
 
         Ok(Sender { raw: sender_ptr })
     }
@@ -55,14 +55,14 @@ impl Sender {
                 &mut frame_ptr,
             )
         };
-        check(rc)?;
+        check(rc as u32)?;
         Ok(WritableFrame::from_raw(frame_ptr))
     }
 
     pub fn commit_frame(&mut self, frame: WritableFrame) -> Result<()> {
         let raw = frame.into_raw();
         let rc = unsafe { ffi::nozzle_sender_commit_frame(self.raw, raw) };
-        check(rc)
+        check(rc as u32)
     }
 
     pub fn publish_gl_texture(
@@ -83,7 +83,7 @@ impl Sender {
                 format as u32,
             )
         };
-        check(rc)
+        check(rc as u32)
     }
 
     pub fn info(&self) -> Result<SenderInfo> {
@@ -94,13 +94,13 @@ impl Sender {
             backend: 0,
         };
         let rc = unsafe { ffi::nozzle_sender_get_info(self.raw, &mut info) };
-        check(rc)?;
+        check(rc as u32)?;
 
         Ok(SenderInfo {
             name: crate::cstr_to_string(info.name),
             application_name: crate::cstr_to_string(info.application_name),
             id: crate::cstr_to_string(info.id),
-            backend: crate::types::BackendType::from_raw(info.backend),
+            backend: crate::types::BackendType::from_raw(info.backend as u32),
         })
     }
 }

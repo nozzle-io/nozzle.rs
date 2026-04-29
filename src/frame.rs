@@ -23,7 +23,7 @@ impl Frame {
             dropped_frame_count: 0,
         };
         let rc = unsafe { ffi::nozzle_frame_get_info(self.raw, &mut info) };
-        check(rc)?;
+        check(rc as u32)?;
         Ok(FrameInfo {
             frame_index: info.frame_index,
             timestamp_ns: info.timestamp_ns,
@@ -56,7 +56,7 @@ impl Frame {
         } else {
             unsafe { ffi::nozzle_frame_lock_pixels(self.raw, &mut mapped) }
         };
-        check(rc)?;
+        check(rc as u32)?;
 
         let len = (mapped.height as usize)
             .checked_mul(mapped.row_bytes as usize)
@@ -95,7 +95,7 @@ impl Frame {
                 format as u32,
             )
         };
-        check(rc)
+        check(rc as u32)
     }
 
     pub(crate) fn into_raw(self) -> *mut ffi::NozzleFrame {
