@@ -90,7 +90,7 @@ fn test_error_code_roundtrip() {
     assert!(!err.message.is_empty());
 
     let display = format!("{}", err);
-    assert!(display.contains("timeout"), "error display: {}", display);
+    assert!(display.contains("timed out"), "error display: {}", display);
 }
 
 #[test]
