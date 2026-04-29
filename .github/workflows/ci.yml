@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-macos:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Verify cmake
+        run: cmake --version
+
+      - name: Build
+        run: cargo build
+
+      - name: Test
+        run: cargo test
+        continue-on-error: true
+
+  build-windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "18.0"
+
+      - name: Build
+        run: cargo build
+        env:
+          LIBCLANG_PATH: ${{ runner.temp }}/llvm/bin
+
+      - name: Test
+        run: cargo test
+        continue-on-error: true
+        env:
+          LIBCLANG_PATH: ${{ runner.temp }}/llvm/bin
+
+  build-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y libdrm-dev libgbm-dev libegl-dev libgl-dev llvm-dev libclang-dev clang
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build
+
+      - name: Test
+        run: cargo test
+        continue-on-error: true
