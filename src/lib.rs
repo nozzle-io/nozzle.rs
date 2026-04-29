@@ -23,3 +23,13 @@ pub use types::{
     AcquireDesc, BackendType, ConnectedSenderInfo, FrameInfo, FrameStatus,
     ReceiverDesc, SenderDesc, SenderInfo, TextureFormat,
 };
+
+pub(crate) fn cstr_to_string(ptr: *const std::os::raw::c_char) -> String {
+    if ptr.is_null() {
+        String::new()
+    } else {
+        unsafe { std::ffi::CStr::from_ptr(ptr) }
+            .to_string_lossy()
+            .into_owned()
+    }
+}

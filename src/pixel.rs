@@ -1,1 +1,1 @@
-pub use frame::{Frame, MappedPixels, WritableFrame};
+pub use crate::frame::{Frame, MappedPixels, WritableFrame};

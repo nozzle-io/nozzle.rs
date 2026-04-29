@@ -8,7 +8,7 @@ pub enum BackendType {
 }
 
 impl BackendType {
-    pub(crate) fn from_raw(raw: i32) -> Self {
+    pub(crate) fn from_raw(raw: u32) -> Self {
         match raw {
             1 => BackendType::D3D11,
             2 => BackendType::Metal,
@@ -43,7 +43,7 @@ pub enum TextureFormat {
 }
 
 impl TextureFormat {
-    pub(crate) fn from_raw(raw: i32) -> Self {
+    pub(crate) fn from_raw(raw: u32) -> Self {
         match raw {
             1 => TextureFormat::R8Unorm,
             2 => TextureFormat::RG8Unorm,

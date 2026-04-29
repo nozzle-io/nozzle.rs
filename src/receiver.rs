@@ -28,7 +28,7 @@ impl Receiver {
         let c_desc = ffi::NozzleReceiverDesc {
             name: name.as_ptr(),
             application_name: app_name.as_ptr(),
-            receive_mode: desc.receive_mode as i32,
+            receive_mode: desc.receive_mode as u32,
         };
 
         let mut receiver_ptr: *mut ffi::NozzleReceiver = ptr::null_mut();
@@ -66,13 +66,13 @@ impl Receiver {
         check(rc)?;
 
         Ok(ConnectedSenderInfo {
-            name: crate::sender::cstr_to_string(info.name),
-            application_name: crate::sender::cstr_to_string(info.application_name),
-            id: crate::sender::cstr_to_string(info.id),
-            backend: crate::types::BackendType::from_raw(info.backend as i32),
+            name: crate::cstr_to_string(info.name),
+            application_name: crate::cstr_to_string(info.application_name),
+            id: crate::cstr_to_string(info.id),
+            backend: crate::types::BackendType::from_raw(info.backend),
             width: info.width,
             height: info.height,
-            format: crate::types::TextureFormat::from_raw(info.format as i32),
+            format: crate::types::TextureFormat::from_raw(info.format),
             estimated_fps: info.estimated_fps,
             frame_counter: info.frame_counter,
             last_update_time_ns: info.last_update_time_ns,

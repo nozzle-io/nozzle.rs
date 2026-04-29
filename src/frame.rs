@@ -29,7 +29,7 @@ impl Frame {
             timestamp_ns: info.timestamp_ns,
             width: info.width,
             height: info.height,
-            format: TextureFormat::from_raw(info.format as i32),
+            format: TextureFormat::from_raw(info.format as u32),
             dropped_frame_count: info.dropped_frame_count,
         })
     }
@@ -72,7 +72,7 @@ impl Frame {
             row_bytes: mapped.row_bytes,
             width: mapped.width,
             height: mapped.height,
-            format: TextureFormat::from_raw(mapped.format as i32),
+            format: TextureFormat::from_raw(mapped.format as u32),
             writable,
         })
     }
@@ -92,7 +92,7 @@ impl Frame {
                 gl_target,
                 width,
                 height,
-                format as i32,
+                format as u32,
             )
         };
         check(rc)

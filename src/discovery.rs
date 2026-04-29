@@ -22,10 +22,10 @@ pub fn enumerate_senders() -> crate::error::Result<Vec<SenderInfo>> {
         }
         .iter()
         .map(|item| SenderInfo {
-            name: crate::sender::cstr_to_string(item.name),
-            application_name: crate::sender::cstr_to_string(item.application_name),
-            id: crate::sender::cstr_to_string(item.id),
-            backend: crate::types::BackendType::from_raw(item.backend as i32),
+            name: crate::cstr_to_string(item.name),
+            application_name: crate::cstr_to_string(item.application_name),
+            id: crate::cstr_to_string(item.id),
+            backend: crate::types::BackendType::from_raw(item.backend as u32),
         })
         .collect()
     };

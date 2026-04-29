@@ -86,8 +86,8 @@ impl std::error::Error for Error {}
 
 pub type Result<T> = std::result::Result<T, Error>;
 
-pub(crate) fn check(raw: i32) -> Result<()> {
-    let code = ErrorCode::from_raw(raw);
+pub(crate) fn check(raw: u32) -> Result<()> {
+    let code = ErrorCode::from_raw(raw as i32);
     if code == ErrorCode::Ok {
         Ok(())
     } else {

@@ -51,7 +51,7 @@ impl Sender {
                 self.raw,
                 width,
                 height,
-                format as i32,
+                format as u32,
                 &mut frame_ptr,
             )
         };
@@ -80,7 +80,7 @@ impl Sender {
                 gl_target,
                 width,
                 height,
-                format as i32,
+                format as u32,
             )
         };
         check(rc)
@@ -97,10 +97,10 @@ impl Sender {
         check(rc)?;
 
         Ok(SenderInfo {
-            name: unsafe { cstr_to_string(info.name) },
-            application_name: unsafe { cstr_to_string(info.application_name) },
-            id: unsafe { cstr_to_string(info.id) },
-            backend: crate::types::BackendType::from_raw(info.backend as i32),
+            name: crate::cstr_to_string(info.name),
+            application_name: crate::cstr_to_string(info.application_name),
+            id: crate::cstr_to_string(info.id),
+            backend: crate::types::BackendType::from_raw(info.backend),
         })
     }
 }
@@ -115,15 +115,3 @@ impl Drop for Sender {
 
 unsafe impl Send for Sender {}
 unsafe impl Sync for Sender {}
-
-fn cstr_to_string(ptr: *const std::os::raw::c_char) -> String {
-    if ptr.is_null() {
-        String::new()
-    } else {
-        unsafe { std::ffi::CStr::from_ptr(ptr) }
-            .to_string_lossy()
-            .into_owned()
-    }
-}
-
-pub(crate) use cstr_to_string;
