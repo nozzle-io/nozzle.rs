@@ -4,28 +4,36 @@ use std::path::PathBuf;
 fn main() {
     let nozzle_dir = PathBuf::from("nozzle");
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    let manifest_dir = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap());
 
-    // build nozzle static library via cmake
+    // build nozzle static library via cmake (Release to avoid debug CRT on MSVC)
     let nozzle_build = cmake::Config::new(&nozzle_dir)
         .define("NOZZLE_BUILD_TESTS", "OFF")
         .define("NOZZLE_BUILD_EXAMPLES", "OFF")
+        .define("CMAKE_BUILD_TYPE", "Release")
+        .profile("Release")
         .build();
 
     // link the static library
-    let lib_name = if cfg!(windows) { "nozzle" } else { "nozzle" };
     println!("cargo:rustc-link-search=native={}/lib", nozzle_build.display());
-    println!("cargo:rustc-link-lib=static={}", lib_name);
+    println!("cargo:rustc-link-lib=static=nozzle");
 
-    // platform-specific linking
+    // platform-specific linking — must match nozzle CMakeLists.txt
     if cfg!(target_os = "macos") {
         println!("cargo:rustc-link-framework=Metal");
         println!("cargo:rustc-link-framework=IOSurface");
         println!("cargo:rustc-link-framework=Foundation");
+        println!("cargo:rustc-link-framework=CoreFoundation");
+        println!("cargo:rustc-link-framework=OpenGL");
+        println!("cargo:rustc-link-framework=CoreGraphics");
+        println!("cargo:rustc-link-lib=objc");
         println!("cargo:rustc-link-lib=c++");
+    } else if cfg!(target_os = "linux") {
+        println!("cargo:rustc-link-lib=stdc++");
     } else if cfg!(target_os = "windows") {
         println!("cargo:rustc-link-lib=d3d11");
         println!("cargo:rustc-link-lib=dxgi");
+        println!("cargo:rustc-link-lib=opengl32");
+        println!("cargo:rustc-link-lib=bcrypt");
         println!("cargo:rustc-link-lib=ole32");
         println!("cargo:rustc-link-lib=user32");
     }
