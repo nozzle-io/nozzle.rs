@@ -23,13 +23,13 @@ impl Frame {
             dropped_frame_count: 0,
         };
         let rc = unsafe { ffi::nozzle_frame_get_info(self.raw, &mut info) };
-        check(rc as u32)?;
+        check(rc as _)?;
         Ok(FrameInfo {
             frame_index: info.frame_index,
             timestamp_ns: info.timestamp_ns,
             width: info.width,
             height: info.height,
-            format: TextureFormat::from_raw(info.format as u32),
+            format: TextureFormat::from_raw(info.format as _),
             dropped_frame_count: info.dropped_frame_count,
         })
     }
@@ -56,7 +56,7 @@ impl Frame {
         } else {
             unsafe { ffi::nozzle_frame_lock_pixels(self.raw, &mut mapped) }
         };
-        check(rc as u32)?;
+        check(rc as _)?;
 
         let len = (mapped.height as usize)
             .checked_mul(mapped.row_bytes as usize)
@@ -72,7 +72,7 @@ impl Frame {
             row_bytes: mapped.row_bytes,
             width: mapped.width,
             height: mapped.height,
-            format: TextureFormat::from_raw(mapped.format as u32),
+            format: TextureFormat::from_raw(mapped.format as _),
             writable,
         })
     }
@@ -92,10 +92,10 @@ impl Frame {
                 gl_target,
                 width,
                 height,
-                format as u32,
+                format as _,
             )
         };
-        check(rc as u32)
+        check(rc as _)
     }
 
     pub(crate) fn into_raw(self) -> *mut ffi::NozzleFrame {

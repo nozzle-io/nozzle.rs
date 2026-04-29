@@ -28,12 +28,12 @@ impl Receiver {
         let c_desc = ffi::NozzleReceiverDesc {
             name: name.as_ptr(),
             application_name: app_name.as_ptr(),
-            receive_mode: desc.receive_mode as u32,
+            receive_mode: desc.receive_mode as _,
         };
 
         let mut receiver_ptr: *mut ffi::NozzleReceiver = ptr::null_mut();
         let rc = unsafe { ffi::nozzle_receiver_create(&c_desc, &mut receiver_ptr) };
-        check(rc as u32)?;
+        check(rc as _)?;
 
         Ok(Receiver { raw: receiver_ptr })
     }
@@ -45,7 +45,7 @@ impl Receiver {
 
         let mut frame_ptr: *mut ffi::NozzleFrame = ptr::null_mut();
         let rc = unsafe { ffi::nozzle_receiver_acquire_frame(self.raw, &c_desc, &mut frame_ptr) };
-        check(rc as u32)?;
+        check(rc as _)?;
         Ok(Frame::from_raw(frame_ptr))
     }
 
@@ -63,16 +63,16 @@ impl Receiver {
             last_update_time_ns: 0,
         };
         let rc = unsafe { ffi::nozzle_receiver_get_connected_info(self.raw, &mut info) };
-        check(rc as u32)?;
+        check(rc as _)?;
 
         Ok(ConnectedSenderInfo {
             name: crate::cstr_to_string(info.name),
             application_name: crate::cstr_to_string(info.application_name),
             id: crate::cstr_to_string(info.id),
-            backend: crate::types::BackendType::from_raw(info.backend as u32),
+            backend: crate::types::BackendType::from_raw(info.backend as _),
             width: info.width,
             height: info.height,
-            format: crate::types::TextureFormat::from_raw(info.format as u32),
+            format: crate::types::TextureFormat::from_raw(info.format as _),
             estimated_fps: info.estimated_fps,
             frame_counter: info.frame_counter,
             last_update_time_ns: info.last_update_time_ns,
