@@ -18,10 +18,10 @@ fn main() -> nozzle::Result<()> {
         let mut frame = sender.acquire_writable_frame(512, 512, TextureFormat::Rgba8Unorm)?;
         {
             let mut pixels = frame.lock_writable_pixels()?;
-            let data = pixels.data_mut();
             let row_bytes = pixels.row_bytes as usize;
             let w = pixels.width as usize;
             let h = pixels.height as usize;
+            let data = pixels.data_mut();
 
             for y in 0..h {
                 let row_start = y * row_bytes;

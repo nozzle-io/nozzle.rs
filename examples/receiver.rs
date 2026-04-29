@@ -15,7 +15,7 @@ fn main() -> nozzle::Result<()> {
     let mut frame_count = 0u64;
 
     while start.elapsed() < Duration::from_secs(30) {
-        let frame = match receiver.acquire_frame(&AcquireDesc { timeout_ms: 1000 }) {
+        let mut frame = match receiver.acquire_frame(&AcquireDesc { timeout_ms: 1000 }) {
             Ok(f) => f,
             Err(_) => {
                 println!("no sender found yet, waiting...");

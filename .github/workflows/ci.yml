@@ -24,7 +24,6 @@ jobs:
 
       - name: Test
         run: cargo test
-        continue-on-error: true
 
   build-windows:
     runs-on: windows-2022
@@ -48,7 +47,6 @@ jobs:
 
       - name: Test
         run: cargo test
-        continue-on-error: true
 
   build-linux:
     runs-on: ubuntu-22.04
@@ -67,4 +65,3 @@ jobs:
 
       - name: Test
         run: cargo test
-        continue-on-error: true
