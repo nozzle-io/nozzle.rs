@@ -39,16 +39,16 @@ jobs:
         with:
           version: "18"
 
+      - name: Set LIBCLANG_PATH
+        shell: bash
+        run: printf '%s\n' "LIBCLANG_PATH=$LLVM_PATH/bin" >> "$GITHUB_ENV"
+
       - name: Build
         run: cargo build
-        env:
-          LIBCLANG_PATH: ${{ runner.temp }}/llvm/bin
 
       - name: Test
         run: cargo test
         continue-on-error: true
-        env:
-          LIBCLANG_PATH: ${{ runner.temp }}/llvm/bin
 
   build-linux:
     runs-on: ubuntu-22.04
