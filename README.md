@@ -1,5 +1,8 @@
 # nozzle.rs
 
+> This codebase is currently in its AI-slob prototyping phase: the code runs on momentum, vibes, and plausible intent.
+> Proper debugging will be introduced once demand graduates from hypothetical to measurable.
+
 Rust bindings for [nozzle](https://github.com/nozzle-io/nozzle) — cross-platform GPU texture sharing between local processes.
 
 ## Build Requirements
@@ -118,3 +121,7 @@ All nozzle formats are exposed as `TextureFormat` variants:
 ## License
 
 MIT
+
+Third-party dependencies:
+
+- [nozzle](https://github.com/nozzle-io/nozzle) — MIT
