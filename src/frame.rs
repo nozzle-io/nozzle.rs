@@ -45,21 +45,22 @@ impl Frame {
     fn map_pixels(&mut self, writable: bool) -> Result<MappedPixels<'_>> {
         let mut mapped = ffi::NozzleMappedPixels {
             data: ptr::null_mut(),
-            row_bytes: 0,
+            row_stride_bytes: 0,
             width: 0,
             height: 0,
             format: 0,
+            origin: 0,
         };
 
         let rc = if writable {
-            unsafe { ffi::nozzle_frame_lock_writable_pixels(self.raw, &mut mapped) }
+            unsafe { ffi::nozzle_frame_lock_writable_pixels_with_origin(self.raw, 0, &mut mapped) }
         } else {
-            unsafe { ffi::nozzle_frame_lock_pixels(self.raw, &mut mapped) }
+            unsafe { ffi::nozzle_frame_lock_pixels_with_origin(self.raw, 0, &mut mapped) }
         };
         check(rc as _)?;
 
         let len = (mapped.height as usize)
-            .checked_mul(mapped.row_bytes as usize)
+            .checked_mul(mapped.row_stride_bytes as usize)
             .ok_or_else(|| Error::with_message(crate::ErrorCode::Unknown, "pixel buffer size overflow"))?;
 
         let data = unsafe {
@@ -69,7 +70,7 @@ impl Frame {
         Ok(MappedPixels {
             frame: self.raw,
             data,
-            row_bytes: mapped.row_bytes,
+            row_stride_bytes: mapped.row_stride_bytes as u32,
             width: mapped.width,
             height: mapped.height,
             format: TextureFormat::from_raw(mapped.format as _),
@@ -119,7 +120,7 @@ unsafe impl Sync for Frame {}
 pub struct MappedPixels<'a> {
     frame: *mut ffi::NozzleFrame,
     data: &'a mut [u8],
-    pub row_bytes: u32,
+    pub row_stride_bytes: u32,
     pub width: u32,
     pub height: u32,
     pub format: TextureFormat,
@@ -139,8 +140,8 @@ impl<'a> MappedPixels<'a> {
         if y >= self.height {
             return None;
         }
-        let start = (y as usize) * (self.row_bytes as usize);
-        let end = start + (self.row_bytes as usize);
+        let start = (y as usize) * (self.row_stride_bytes as usize);
+        let end = start + (self.row_stride_bytes as usize);
         Some(&self.data[start..end])
     }
 
@@ -148,8 +149,8 @@ impl<'a> MappedPixels<'a> {
         if y >= self.height {
             return None;
         }
-        let start = (y as usize) * (self.row_bytes as usize);
-        let end = start + (self.row_bytes as usize);
+        let start = (y as usize) * (self.row_stride_bytes as usize);
+        let end = start + (self.row_stride_bytes as usize);
         Some(&mut self.data[start..end])
     }
 }
