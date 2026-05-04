@@ -77,8 +77,8 @@ fn test_sender_acquire_writable_frame() {
     let info = frame.info().expect("frame info");
     assert_eq!(info.width, 64);
     assert_eq!(info.height, 64);
-    // format may differ from requested due to backend fallback (e.g. Metal uses BGRA8)
-    assert_ne!(info.format, TextureFormat::Unknown);
+    // Metal fallback: rgba8 → bgra8 for 8-bit IOSurface
+    assert!(info.format == TextureFormat::Rgba8Unorm || info.format == TextureFormat::Bgra8Unorm);
 }
 
 #[test]
