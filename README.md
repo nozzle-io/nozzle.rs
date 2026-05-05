@@ -115,10 +115,19 @@ All nozzle formats are exposed as `TextureFormat` variants:
 | `R8Unorm` | 1 |
 | `RG8Unorm` | 2 |
 | `Rgba8Unorm` / `Bgra8Unorm` | 4 |
+| `Rgba8Srgb` / `Bgra8Srgb` | 4 |
+| `R16Unorm` | 2 |
+| `RG16Unorm` | 4 |
+| `Rgba16Unorm` | 8 |
 | `R16Float` | 2 |
+| `RG16Float` | 4 |
 | `Rgba16Float` | 8 |
 | `R32Float` | 4 |
+| `RG32Float` | 8 |
 | `Rgba32Float` | 16 |
+| `R32Uint` | 4 |
+| `Rgba32Uint` | 16 |
+| `Depth32Float` | 4 |
 
 ## Platform Notes
 
