@@ -20,8 +20,9 @@ pub use frame::{Frame, MappedPixels, WritableFrame};
 pub use receiver::Receiver;
 pub use sender::Sender;
 pub use types::{
-    AcquireDesc, BackendType, ConnectedSenderInfo, FrameInfo, FrameStatus,
-    ReceiverDesc, SenderDesc, SenderInfo, TextureFormat,
+    AcquireDesc, BackendType, ConnectedSenderInfo, FormatSource, FrameInfo, FrameStatus,
+    NativeFormatKind, ReceiveMode, ReceiverDesc, ResolvedTextureFormat, SenderDesc,
+    SenderInfo, SyncMode, TextureFormat, TextureOrigin, TextureWrapDesc, TransferMode,
 };
 
 pub(crate) fn cstr_to_string(ptr: *const std::os::raw::c_char) -> String {

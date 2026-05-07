@@ -58,9 +58,11 @@ impl Receiver {
             width: 0,
             height: 0,
             format: 0,
+            semantic_format: 0,
             estimated_fps: 0.0,
             frame_counter: 0,
             last_update_time_ns: 0,
+            native_format_modifier: 0,
         };
         let rc = unsafe { ffi::nozzle_receiver_get_connected_info(self.raw, &mut info) };
         check(rc as _)?;
@@ -73,9 +75,11 @@ impl Receiver {
             width: info.width,
             height: info.height,
             format: crate::types::TextureFormat::from_raw(info.format as _),
+            semantic_format: crate::types::TextureFormat::from_raw(info.semantic_format as _),
             estimated_fps: info.estimated_fps,
             frame_counter: info.frame_counter,
             last_update_time_ns: info.last_update_time_ns,
+            native_format_modifier: info.native_format_modifier,
         })
     }
 

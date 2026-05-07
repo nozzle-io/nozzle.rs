@@ -1,5 +1,5 @@
 use crate::error::{check, Error, Result};
-use crate::types::{FrameInfo, TextureFormat};
+use crate::types::{FrameInfo, TextureFormat, TextureOrigin, TransferMode, SyncMode};
 use crate::ffi;
 
 use std::ptr;
@@ -20,6 +20,9 @@ impl Frame {
             width: 0,
             height: 0,
             format: 0,
+            semantic_format: 0,
+            transfer_mode: 0,
+            sync_mode: 0,
             dropped_frame_count: 0,
         };
         let rc = unsafe { ffi::nozzle_frame_get_info(self.raw, &mut info) };
@@ -30,6 +33,9 @@ impl Frame {
             width: info.width,
             height: info.height,
             format: TextureFormat::from_raw(info.format as _),
+            semantic_format: TextureFormat::from_raw(info.semantic_format as _),
+            transfer_mode: TransferMode::from_raw(info.transfer_mode as _),
+            sync_mode: SyncMode::from_raw(info.sync_mode as _),
             dropped_frame_count: info.dropped_frame_count,
         })
     }
@@ -74,6 +80,7 @@ impl Frame {
             width: mapped.width,
             height: mapped.height,
             format: TextureFormat::from_raw(mapped.format as _),
+            origin: TextureOrigin::from_raw(mapped.origin as _),
             writable,
         })
     }
@@ -124,6 +131,7 @@ pub struct MappedPixels<'a> {
     pub width: u32,
     pub height: u32,
     pub format: TextureFormat,
+    pub origin: TextureOrigin,
     writable: bool,
 }
 
