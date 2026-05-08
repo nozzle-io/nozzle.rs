@@ -4,6 +4,7 @@ use crate::frame::WritableFrame;
 use crate::types::{SenderDesc, SenderInfo};
 
 use std::ffi::CString;
+use std::mem;
 use std::ptr;
 
 pub struct Sender {
@@ -25,14 +26,12 @@ impl Sender {
             )
         })?;
 
-        let c_desc = ffi::NozzleSenderDesc {
-            name: name.as_ptr(),
-            application_name: app_name.as_ptr(),
-            ring_buffer_size: desc.ring_buffer_size,
-            fallback_flags: desc.fallback_flags,
-            fallback_flags_valid: if desc.fallback_flags_valid { 1 } else { 0 },
-            ..Default::default()
-        };
+        let mut c_desc: ffi::NozzleSenderDesc = unsafe { mem::zeroed() };
+        c_desc.name = name.as_ptr();
+        c_desc.application_name = app_name.as_ptr();
+        c_desc.ring_buffer_size = desc.ring_buffer_size;
+        c_desc.fallback_flags = desc.fallback_flags;
+        c_desc.fallback_flags_valid = if desc.fallback_flags_valid { 1 } else { 0 };
 
         let mut sender_ptr: *mut ffi::NozzleSender = ptr::null_mut();
         let rc = unsafe { ffi::nozzle_sender_create(&c_desc, &mut sender_ptr) };
