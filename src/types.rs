@@ -320,6 +320,8 @@ pub struct SenderDesc {
     pub application_name: String,
     pub ring_buffer_size: u32,
     pub allow_format_fallback: bool,
+    pub fallback_flags: u32,
+    pub fallback_flags_valid: bool,
 }
 
 impl Default for SenderDesc {
@@ -329,6 +331,8 @@ impl Default for SenderDesc {
             application_name: String::new(),
             ring_buffer_size: 3,
             allow_format_fallback: true,
+            fallback_flags: 3,
+            fallback_flags_valid: true,
         }
     }
 }

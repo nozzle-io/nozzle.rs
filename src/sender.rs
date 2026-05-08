@@ -29,7 +29,9 @@ impl Sender {
             name: name.as_ptr(),
             application_name: app_name.as_ptr(),
             ring_buffer_size: desc.ring_buffer_size,
-            allow_format_fallback: if desc.allow_format_fallback { 1 } else { 0 },
+            fallback_flags: desc.fallback_flags,
+            fallback_flags_valid: if desc.fallback_flags_valid { 1 } else { 0 },
+            ..Default::default()
         };
 
         let mut sender_ptr: *mut ffi::NozzleSender = ptr::null_mut();
