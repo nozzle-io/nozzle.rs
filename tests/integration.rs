@@ -5,7 +5,9 @@ fn is_backend_unavailable<T>(result: &std::result::Result<T, Error>) -> bool {
         Ok(_) => false,
         Err(e) => matches!(
             e.code,
-            ErrorCode::UnsupportedBackend | ErrorCode::ResourceCreationFailed
+            ErrorCode::UnsupportedBackend
+                | ErrorCode::ResourceCreationFailed
+                | ErrorCode::BackendError
         ),
     }
 }
