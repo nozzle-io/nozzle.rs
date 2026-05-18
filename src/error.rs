@@ -15,6 +15,7 @@ pub enum ErrorCode {
     SenderClosed = 9,
     Timeout = 10,
     BackendError = 11,
+    CommandFailed = 12,
 }
 
 impl ErrorCode {
@@ -32,6 +33,7 @@ impl ErrorCode {
             9 => ErrorCode::SenderClosed,
             10 => ErrorCode::Timeout,
             11 => ErrorCode::BackendError,
+            12 => ErrorCode::CommandFailed,
             _ => ErrorCode::Unknown,
         }
     }
@@ -50,6 +52,7 @@ impl ErrorCode {
             ErrorCode::SenderClosed => "sender closed",
             ErrorCode::Timeout => "operation timed out",
             ErrorCode::BackendError => "backend-specific error",
+            ErrorCode::CommandFailed => "command execution failed",
         }
     }
 }
