@@ -274,6 +274,8 @@ pub struct ConnectedSenderInfo {
     pub estimated_fps: f64,
     pub frame_counter: u64,
     pub last_update_time_ns: u64,
+    pub native_format_kind: NativeFormatKind,
+    pub native_format_value: u32,
     pub native_format_modifier: u64,
 }
 

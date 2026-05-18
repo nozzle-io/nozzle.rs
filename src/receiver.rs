@@ -62,6 +62,8 @@ impl Receiver {
             estimated_fps: 0.0,
             frame_counter: 0,
             last_update_time_ns: 0,
+            native_format_kind: 0,
+            native_format_value: 0,
             native_format_modifier: 0,
         };
         let rc = unsafe { ffi::nozzle_receiver_get_connected_info(self.raw, &mut info) };
@@ -79,6 +81,10 @@ impl Receiver {
             estimated_fps: info.estimated_fps,
             frame_counter: info.frame_counter,
             last_update_time_ns: info.last_update_time_ns,
+            native_format_kind: crate::types::NativeFormatKind::from_raw(
+                info.native_format_kind as _,
+            ),
+            native_format_value: info.native_format_value,
             native_format_modifier: info.native_format_modifier,
         })
     }
