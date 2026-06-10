@@ -1,34 +1,36 @@
 # nozzle.rs
 
-> This codebase is currently in its AI-slob prototyping phase: the code runs on momentum, vibes, and plausible intent.
-> Proper debugging will be introduced once demand graduates from hypothetical to measurable.
+Experimental pre-1.0 Rust bindings for [nozzle](https://github.com/nozzle-io/nozzle), a cross-platform GPU texture sharing library for local processes.
 
-Rust bindings for [nozzle](https://github.com/nozzle-io/nozzle) — cross-platform GPU texture sharing between local processes.
-
-## Disclaimer / Notice
-
-This library is currently a work in progress and contains many incomplete features and unverified implementations.
-Although it may appear usable at first glance, it may not function correctly.
-
-Please use it with the understanding that no guarantees are made regarding its behavior, and perform debugging, validation, and review as needed.
-If you encounter problems, please do not become angry; instead, contributions in the form of Issues or Pull Requests would be greatly appreciated.
+APIs, packaging, and platform behavior may change before stabilization. Treat this crate as early integration work: validate the target platform/backend before using it in production, and report issues with exact OS, GPU, backend, and nozzle/nozzle.rs versions.
 
 ## Build Requirements
 
-- Rust stable
-- C++17 compiler (clang / MSVC)
+- Rust 1.82 or newer
+- C++17 compiler (clang, MSVC, or GCC)
 - CMake 3.20+
-- macOS 12+ or Windows 10+
+- libclang for bindgen
+- One supported native platform:
+  - macOS 12+
+  - Windows 10+
+  - Linux with `libdrm`, `gbm`, `EGL`, and OpenGL development packages
 
-The nozzle C library is built from source via a git submodule. CMake and a C++ compiler are required.
+The nozzle C library is built from vendored source in the crate package. When building from a git checkout instead of a published crate, initialize submodules recursively before running Cargo commands.
 
 ## Usage
 
-Add to `Cargo.toml`:
+Before the first crates.io publication, use the git dependency:
 
 ```toml
 [dependencies]
 nozzle = { git = "https://github.com/nozzle-io/nozzle.rs.git" }
+```
+
+After `nozzle` is published on crates.io, use the registry dependency:
+
+```toml
+[dependencies]
+nozzle = "0.1"
 ```
 
 ### Sender
@@ -131,9 +133,10 @@ All nozzle formats are exposed as `TextureFormat` variants:
 
 ## Platform Notes
 
-- **macOS**: Links Metal, IOSurface, Foundation frameworks automatically
-- **Windows**: Links d3d11, dxgi, ole32, user32 automatically
-- The crate is thread-safe — `Sender` and `Receiver` implement `Send + Sync`
+- **macOS**: Links Metal, IOSurface, Foundation, CoreFoundation, Accelerate, OpenGL, Objective-C, and C++ runtime dependencies automatically.
+- **Windows**: Links d3d11, dxgi, opengl32, bcrypt, ole32, and user32 automatically.
+- **Linux**: Links libdrm, gbm, EGL, OpenGL, and the C++ runtime; install the matching development packages before building.
+- The crate is thread-safe — `Sender` and `Receiver` implement `Send + Sync`.
 
 ## License
 

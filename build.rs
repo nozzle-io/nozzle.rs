@@ -14,7 +14,10 @@ fn main() {
         .build();
 
     // link the static library
-    println!("cargo:rustc-link-search=native={}/lib", nozzle_build.display());
+    println!(
+        "cargo:rustc-link-search=native={}/lib",
+        nozzle_build.display()
+    );
     println!("cargo:rustc-link-lib=static=nozzle");
 
     // platform-specific linking — must match nozzle CMakeLists.txt
@@ -23,6 +26,7 @@ fn main() {
         println!("cargo:rustc-link-lib=framework=IOSurface");
         println!("cargo:rustc-link-lib=framework=Foundation");
         println!("cargo:rustc-link-lib=framework=CoreFoundation");
+        println!("cargo:rustc-link-lib=framework=Accelerate");
         println!("cargo:rustc-link-lib=framework=OpenGL");
         println!("cargo:rustc-link-lib=framework=CoreGraphics");
         println!("cargo:rustc-link-lib=objc");

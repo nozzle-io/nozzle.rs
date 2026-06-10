@@ -221,6 +221,10 @@ pub enum FormatSource {
 }
 
 impl FormatSource {
+    // Kept for the next safe wrapper over NozzleResolvedTextureFormat; the raw
+    // C ABI already exposes this field even though the current Rust API does
+    // not yet surface it directly.
+    #[allow(dead_code)]
     pub(crate) fn from_raw(raw: u32) -> Self {
         match raw {
             1 => FormatSource::Requested,
@@ -356,13 +360,7 @@ impl Default for ReceiverDesc {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct AcquireDesc {
     pub timeout_ms: u64,
-}
-
-impl Default for AcquireDesc {
-    fn default() -> Self {
-        AcquireDesc { timeout_ms: 0 }
-    }
 }

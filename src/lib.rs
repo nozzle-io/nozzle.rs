@@ -1,28 +1,28 @@
-#![allow(non_upper_case_globals)]
-#![allow(non_camel_case_types)]
-#![allow(non_snake_case)]
-
-mod error;
 mod discovery;
+mod error;
 mod frame;
-mod pixel;
+pub mod pixel;
 mod receiver;
 mod sender;
 mod types;
 
+#[allow(dead_code)]
+#[allow(non_upper_case_globals)]
+#[allow(non_camel_case_types)]
+#[allow(non_snake_case)]
 mod ffi {
     include!(concat!(env!("OUT_DIR"), "/nozzle_raw.rs"));
 }
 
-pub use error::{Error, ErrorCode, Result};
 pub use discovery::enumerate_senders;
+pub use error::{Error, ErrorCode, Result};
 pub use frame::{Frame, MappedPixels, WritableFrame};
 pub use receiver::Receiver;
 pub use sender::Sender;
 pub use types::{
     AcquireDesc, BackendType, ConnectedSenderInfo, FormatSource, FrameInfo, FrameStatus,
-    NativeFormatKind, ReceiveMode, ReceiverDesc, ResolvedTextureFormat, SenderDesc,
-    SenderInfo, SyncMode, TextureFormat, TextureOrigin, TextureWrapDesc, TransferMode,
+    NativeFormatKind, ReceiveMode, ReceiverDesc, ResolvedTextureFormat, SenderDesc, SenderInfo,
+    SyncMode, TextureFormat, TextureOrigin, TextureWrapDesc, TransferMode,
 };
 
 pub(crate) fn cstr_to_string(ptr: *const std::os::raw::c_char) -> String {

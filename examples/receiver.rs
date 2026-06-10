@@ -31,7 +31,7 @@ fn main() -> nozzle::Result<()> {
             info.frame_index, info.width, info.height, info.format
         );
 
-        if let Ok(mut pixels) = frame.lock_pixels() {
+        if let Ok(pixels) = frame.lock_pixels() {
             let data = pixels.data();
             if data.len() >= 4 {
                 print!(

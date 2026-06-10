@@ -1,6 +1,6 @@
 use crate::error::{check, Error, Result};
-use crate::types::{FrameInfo, TextureFormat, TextureOrigin, TransferMode, SyncMode};
 use crate::ffi;
+use crate::types::{FrameInfo, SyncMode, TextureFormat, TextureOrigin, TransferMode};
 
 use std::ptr;
 
@@ -67,11 +67,11 @@ impl Frame {
 
         let len = (mapped.height as usize)
             .checked_mul(mapped.row_stride_bytes as usize)
-            .ok_or_else(|| Error::with_message(crate::ErrorCode::Unknown, "pixel buffer size overflow"))?;
+            .ok_or_else(|| {
+                Error::with_message(crate::ErrorCode::Unknown, "pixel buffer size overflow")
+            })?;
 
-        let data = unsafe {
-            std::slice::from_raw_parts_mut(mapped.data as *mut u8, len)
-        };
+        let data = unsafe { std::slice::from_raw_parts_mut(mapped.data as *mut u8, len) };
 
         Ok(MappedPixels {
             frame: self.raw,

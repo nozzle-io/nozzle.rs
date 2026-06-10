@@ -2,9 +2,32 @@
 name = "nozzle"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.82"
 description = "Rust bindings for nozzle GPU texture sharing"
 license = "MIT"
+repository = "https://github.com/nozzle-io/nozzle.rs"
+readme = "README.md"
+keywords = ["gpu", "texture", "sharing", "interop"]
+categories = ["api-bindings", "multimedia", "graphics"]
 links = "nozzle"
+include = [
+    "Cargo.toml",
+    "README.md",
+    "LICENSE",
+    "build.rs",
+    "wrapper.h",
+    "src/**",
+    "examples/**",
+    "tests/**",
+    "nozzle/CMakeLists.txt",
+    "nozzle/LICENSE",
+    "nozzle/README.md",
+    "nozzle/cmake/**",
+    "nozzle/include/**",
+    "nozzle/src/**",
+    "nozzle/libs/plog/LICENSE",
+    "nozzle/libs/plog/include/**",
+]
 
 [build-dependencies]
 cmake = "0.1"
