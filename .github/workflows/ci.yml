@@ -34,6 +34,20 @@ jobs:
       - name: Build
         run: cargo build
 
+      # nozzle-dev#198: a change to a source list alone must rerun CMake.
+      - name: Rebuild when only a source list changes
+        shell: bash
+        env:
+          CARGO_TERM_COLOR: never
+        run: |
+          list=nozzle/sources/common.txt
+          cp "$list" "$RUNNER_TEMP/common.txt"
+          { tail -n 1 "$RUNNER_TEMP/common.txt"; sed '$d' "$RUNNER_TEMP/common.txt"; } > "$list"
+          cargo build -vv 2>&1 | tee "$RUNNER_TEMP/rebuild.log"
+          grep -E 'Running .*build-script-build' "$RUNNER_TEMP/rebuild.log"
+          grep 'Configuring done' "$RUNNER_TEMP/rebuild.log"
+          cp "$RUNNER_TEMP/common.txt" "$list"
+
       - name: Test
         run: cargo test
 
