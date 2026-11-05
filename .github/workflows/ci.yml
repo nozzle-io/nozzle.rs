@@ -37,6 +37,8 @@ jobs:
       # nozzle-dev#198: a change to a source list alone must rerun CMake.
       - name: Rebuild when only a source list changes
         shell: bash
+        env:
+          CARGO_TERM_COLOR: never
         run: |
           list=nozzle/sources/common.txt
           cp "$list" "$RUNNER_TEMP/common.txt"
