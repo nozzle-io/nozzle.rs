@@ -59,10 +59,21 @@ fn main() {
         .write_to_file(&bindings_path)
         .expect("couldn't write bindings");
 
-    // re-run if wrapper.h or nozzle headers change
+    // re-run if wrapper.h, nozzle headers or nozzle's CMake entry point change
     println!("cargo:rerun-if-changed=wrapper.h");
     println!(
         "cargo:rerun-if-changed={}/include/nozzle/nozzle_c.h",
         nozzle_dir.display()
     );
+    println!(
+        "cargo:rerun-if-changed={}/CMakeLists.txt",
+        nozzle_dir.display()
+    );
+
+    // re-run if nozzle's source lists change. Older nozzle has none, and Cargo
+    // reruns this script on every build if a watched path does not exist.
+    let source_lists = nozzle_dir.join("sources");
+    if source_lists.is_dir() {
+        println!("cargo:rerun-if-changed={}", source_lists.display());
+    }
 }
