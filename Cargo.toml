@@ -25,6 +25,7 @@ include = [
     "nozzle/cmake/**",
     "nozzle/include/**",
     "nozzle/src/**",
+    "nozzle/sources/**",
     "nozzle/libs/plog/LICENSE",
     "nozzle/libs/plog/include/**",
 ]
