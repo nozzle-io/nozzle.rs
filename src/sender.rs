@@ -1,4 +1,4 @@
-use crate::error::{check, Result};
+use crate::error::{check, Error, ErrorCode, Result};
 use crate::ffi;
 use crate::frame::WritableFrame;
 use crate::types::{SenderDesc, SenderInfo};
@@ -6,10 +6,27 @@ use crate::types::{SenderDesc, SenderInfo};
 use std::ffi::CString;
 use std::mem;
 use std::ptr;
+use std::sync::Arc;
 
 pub struct Sender {
-    raw: *mut ffi::NozzleSender,
+    pub(crate) owner: Arc<SenderOwner>,
 }
+
+pub(crate) struct SenderOwner {
+    pub(crate) raw: *mut ffi::NozzleSender,
+}
+
+impl Drop for SenderOwner {
+    fn drop(&mut self) {
+        if !self.raw.is_null() {
+            unsafe { ffi::nozzle_sender_destroy(self.raw) };
+        }
+    }
+}
+
+// Preserve Sender's existing cross-thread contract while sharing its lifetime.
+unsafe impl Send for SenderOwner {}
+unsafe impl Sync for SenderOwner {}
 
 impl Sender {
     pub fn create(desc: &SenderDesc) -> Result<Self> {
@@ -37,7 +54,9 @@ impl Sender {
         let rc = unsafe { ffi::nozzle_sender_create(&c_desc, &mut sender_ptr) };
         check(rc as _)?;
 
-        Ok(Sender { raw: sender_ptr })
+        Ok(Sender {
+            owner: Arc::new(SenderOwner { raw: sender_ptr }),
+        })
     }
 
     pub fn acquire_writable_frame(
@@ -49,7 +68,7 @@ impl Sender {
         let mut frame_ptr: *mut ffi::NozzleFrame = ptr::null_mut();
         let rc = unsafe {
             ffi::nozzle_sender_acquire_writable_frame(
-                self.raw,
+                self.owner.raw,
                 width,
                 height,
                 format as _,
@@ -57,12 +76,39 @@ impl Sender {
             )
         };
         check(rc as _)?;
-        Ok(WritableFrame::from_raw(frame_ptr))
+        Ok(WritableFrame::from_raw(frame_ptr, Arc::clone(&self.owner)))
     }
 
-    pub fn commit_frame(&mut self, frame: WritableFrame) -> Result<()> {
-        let raw = frame.into_raw();
-        let rc = unsafe { ffi::nozzle_sender_commit_frame(self.raw, raw) };
+    /// Consumes the frame even on error. A failed commit is discarded once,
+    /// then the original commit error is returned and the C wrapper is released.
+    pub fn commit_frame(&mut self, mut frame: WritableFrame) -> Result<()> {
+        if !Arc::ptr_eq(&self.owner, &frame.owner) {
+            return Err(Error::with_message(
+                ErrorCode::InvalidArgument,
+                "writable frame belongs to another sender",
+            ));
+        }
+        let rc = unsafe { ffi::nozzle_sender_commit_frame(self.owner.raw, frame.as_raw()) };
+        if rc != ffi::NozzleErrorCode_NOZZLE_OK {
+            // Some commit failures already consumed the payload. Discard may
+            // then return InvalidArgument; preserve the primary commit error.
+            unsafe { ffi::nozzle_sender_discard_frame(self.owner.raw, frame.as_raw()) };
+        }
+        frame.needs_discard = false;
+        check(rc as _)
+    }
+
+    /// Consumes an unpublished frame and reports the native discard result.
+    /// A foreign frame is rejected and cleaned up through its original sender.
+    pub fn discard_frame(&mut self, mut frame: WritableFrame) -> Result<()> {
+        if !Arc::ptr_eq(&self.owner, &frame.owner) {
+            return Err(Error::with_message(
+                ErrorCode::InvalidArgument,
+                "writable frame belongs to another sender",
+            ));
+        }
+        let rc = unsafe { ffi::nozzle_sender_discard_frame(self.owner.raw, frame.as_raw()) };
+        frame.needs_discard = false;
         check(rc as _)
     }
 
@@ -76,7 +122,7 @@ impl Sender {
     ) -> Result<()> {
         let rc = unsafe {
             ffi::nozzle_sender_publish_gl_texture(
-                self.raw,
+                self.owner.raw,
                 gl_texture_name,
                 gl_target,
                 width,
@@ -94,7 +140,7 @@ impl Sender {
             id: ptr::null(),
             backend: 0,
         };
-        let rc = unsafe { ffi::nozzle_sender_get_info(self.raw, &mut info) };
+        let rc = unsafe { ffi::nozzle_sender_get_info(self.owner.raw, &mut info) };
         check(rc as _)?;
 
         Ok(SenderInfo {
@@ -105,14 +151,3 @@ impl Sender {
         })
     }
 }
-
-impl Drop for Sender {
-    fn drop(&mut self) {
-        if !self.raw.is_null() {
-            unsafe { ffi::nozzle_sender_destroy(self.raw) };
-        }
-    }
-}
-
-unsafe impl Send for Sender {}
-unsafe impl Sync for Sender {}
