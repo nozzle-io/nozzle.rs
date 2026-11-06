@@ -1,8 +1,17 @@
 use crate::error::{check, Error, Result};
 use crate::ffi;
+use crate::sender::SenderOwner;
 use crate::types::{FrameInfo, SyncMode, TextureFormat, TextureOrigin, TransferMode};
 
 use std::ptr;
+use std::sync::Arc;
+
+#[cfg(test)]
+pub(crate) static WRAPPERS_ACQUIRED: std::sync::atomic::AtomicUsize =
+    std::sync::atomic::AtomicUsize::new(0);
+#[cfg(test)]
+pub(crate) static WRAPPERS_RELEASED: std::sync::atomic::AtomicUsize =
+    std::sync::atomic::AtomicUsize::new(0);
 
 pub struct Frame {
     raw: *mut ffi::NozzleFrame,
@@ -10,6 +19,8 @@ pub struct Frame {
 
 impl Frame {
     pub(crate) fn from_raw(raw: *mut ffi::NozzleFrame) -> Self {
+        #[cfg(test)]
+        WRAPPERS_ACQUIRED.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         Frame { raw }
     }
 
@@ -105,18 +116,14 @@ impl Frame {
         };
         check(rc as _)
     }
-
-    pub(crate) fn into_raw(self) -> *mut ffi::NozzleFrame {
-        let raw = self.raw;
-        std::mem::forget(self);
-        raw
-    }
 }
 
 impl Drop for Frame {
     fn drop(&mut self) {
         if !self.raw.is_null() {
             unsafe { ffi::nozzle_frame_release(self.raw) };
+            #[cfg(test)]
+            WRAPPERS_RELEASED.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         }
     }
 }
@@ -176,14 +183,21 @@ impl<'a> Drop for MappedPixels<'a> {
     }
 }
 
+/// An unpublished frame keeps its native sender alive. Dropping it attempts
+/// discard before release; use Sender::discard_frame to observe discard errors.
 pub struct WritableFrame {
+    // Field order releases the wrapper before the last native sender owner.
     inner: Frame,
+    pub(crate) owner: Arc<SenderOwner>,
+    pub(crate) needs_discard: bool,
 }
 
 impl WritableFrame {
-    pub(crate) fn from_raw(raw: *mut ffi::NozzleFrame) -> Self {
+    pub(crate) fn from_raw(raw: *mut ffi::NozzleFrame, owner: Arc<SenderOwner>) -> Self {
         WritableFrame {
             inner: Frame::from_raw(raw),
+            owner,
+            needs_discard: true,
         }
     }
 
@@ -199,8 +213,16 @@ impl WritableFrame {
         self.inner.lock_writable_pixels()
     }
 
-    pub(crate) fn into_raw(self) -> *mut ffi::NozzleFrame {
-        self.inner.into_raw()
+    pub(crate) fn as_raw(&self) -> *mut ffi::NozzleFrame {
+        self.inner.raw
+    }
+}
+
+impl Drop for WritableFrame {
+    fn drop(&mut self) {
+        if self.needs_discard {
+            unsafe { ffi::nozzle_sender_discard_frame(self.owner.raw, self.inner.raw) };
+        }
     }
 }
 

@@ -49,6 +49,15 @@ let frame = sender.acquire_writable_frame(1920, 1080, TextureFormat::Rgba8Unorm)
 sender.commit_frame(frame)?;
 ```
 
+Writable frames retain their native sender until cleanup completes, so they may
+outlive the public `Sender`. `commit_frame(frame)` consumes the frame on success
+and failure, releases its C wrapper, and preserves the commit error after one
+discard attempt on failure. Dropping an unpublished frame attempts discard before
+release; `sender.discard_frame(frame)?` reports the discard result explicitly.
+A frame passed to a different sender is rejected and cleaned up through its
+original sender. Let pixel mapping guards drop before committing or discarding;
+deliberately forgetting a mapping guard can prevent reservation cleanup.
+
 ### Receiver
 
 ```rust

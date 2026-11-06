@@ -6,6 +6,9 @@ mod receiver;
 mod sender;
 mod types;
 
+#[cfg(all(test, target_os = "macos"))]
+mod lifecycle_tests;
+
 #[allow(dead_code)]
 #[allow(non_upper_case_globals)]
 #[allow(non_camel_case_types)]
