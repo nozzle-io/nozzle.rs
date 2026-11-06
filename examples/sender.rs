@@ -2,6 +2,9 @@ use nozzle::*;
 use std::thread;
 use std::time::{Duration, Instant};
 
+#[path = "support/gradient.rs"]
+mod gradient;
+
 fn main() -> nozzle::Result<()> {
     let mut sender = Sender::create(&SenderDesc {
         name: "rust_sender".into(),
@@ -18,21 +21,13 @@ fn main() -> nozzle::Result<()> {
         let mut frame = sender.acquire_writable_frame(512, 512, TextureFormat::Rgba8Unorm)?;
         {
             let mut pixels = frame.lock_writable_pixels()?;
-            let row_bytes = pixels.row_stride_bytes as usize;
-            let w = pixels.width as usize;
-            let h = pixels.height as usize;
-            let data = pixels.data_mut();
-
-            for y in 0..h {
-                let row_start = y * row_bytes;
-                for x in 0..w {
-                    let offset = row_start + x * 4;
-                    data[offset] = (x / 2) as u8;
-                    data[offset + 1] = (y / 2) as u8;
-                    data[offset + 2] = 128;
-                    data[offset + 3] = 255;
-                }
-            }
+            let (width, height, stride, format) = (
+                pixels.width,
+                pixels.height,
+                pixels.row_stride_bytes,
+                pixels.format,
+            );
+            gradient::write_gradient(pixels.data_mut(), width, height, stride, format)?;
         }
         // MappedPixels auto-unlocks on drop
 
