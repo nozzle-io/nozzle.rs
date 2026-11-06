@@ -7,13 +7,11 @@ pub fn write_gradient(
     stride: u32,
     format: TextureFormat,
 ) -> Result<()> {
-    match format {
-        TextureFormat::Rgba8Unorm
-        | TextureFormat::Bgra8Unorm
-        | TextureFormat::Rgba8Srgb
-        | TextureFormat::Bgra8Srgb => {}
+    let (red, blue) = match format {
+        TextureFormat::Rgba8Unorm | TextureFormat::Rgba8Srgb => (0, 2),
+        TextureFormat::Bgra8Unorm | TextureFormat::Bgra8Srgb => (2, 0),
         _ => return Err(Error::new(ErrorCode::UnsupportedFormat)),
-    }
+    };
     let width = width as usize;
     let height = height as usize;
     let stride = stride as usize;
@@ -31,9 +29,9 @@ pub fn write_gradient(
     for y in 0..height {
         for x in 0..width {
             let offset = y * stride + x * 4;
-            data[offset] = (x / 2) as u8;
+            data[offset + red] = (x / 2) as u8;
             data[offset + 1] = (y / 2) as u8;
-            data[offset + 2] = 128;
+            data[offset + blue] = 128;
             data[offset + 3] = 255;
         }
     }
