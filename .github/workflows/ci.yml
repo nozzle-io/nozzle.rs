@@ -49,7 +49,7 @@ jobs:
           cp "$RUNNER_TEMP/common.txt" "$list"
 
       - name: Test
-        run: cargo test
+        run: cargo test -- --nocapture
 
       - name: Package list
         run: cargo package --list
