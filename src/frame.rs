@@ -4,12 +4,21 @@ use crate::types::{FrameInfo, SyncMode, TextureFormat, TextureOrigin, TransferMo
 
 use std::ptr;
 
+#[cfg(test)]
+pub(crate) static WRAPPERS_ACQUIRED: std::sync::atomic::AtomicUsize =
+    std::sync::atomic::AtomicUsize::new(0);
+#[cfg(test)]
+pub(crate) static WRAPPERS_RELEASED: std::sync::atomic::AtomicUsize =
+    std::sync::atomic::AtomicUsize::new(0);
+
 pub struct Frame {
     raw: *mut ffi::NozzleFrame,
 }
 
 impl Frame {
     pub(crate) fn from_raw(raw: *mut ffi::NozzleFrame) -> Self {
+        #[cfg(test)]
+        WRAPPERS_ACQUIRED.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         Frame { raw }
     }
 
@@ -117,6 +126,8 @@ impl Drop for Frame {
     fn drop(&mut self) {
         if !self.raw.is_null() {
             unsafe { ffi::nozzle_frame_release(self.raw) };
+            #[cfg(test)]
+            WRAPPERS_RELEASED.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
         }
     }
 }
