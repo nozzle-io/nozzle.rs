@@ -49,6 +49,9 @@ fn main() -> nozzle::Result<()> {
         thread::sleep(Duration::from_millis(100));
     }
 
-    println!("done. {} frames sent in {} attempts.", published, total_frames);
+    println!(
+        "done. {} frames sent in {} attempts.",
+        published, total_frames
+    );
     Ok(())
 }
