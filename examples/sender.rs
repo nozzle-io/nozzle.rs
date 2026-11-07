@@ -36,7 +36,7 @@ fn main() -> nozzle::Result<()> {
         })();
         match result {
             Ok(()) => published += 1,
-            Err(error) if error.code == ErrorCode::Timeout => {},
+            Err(error) if error.code == ErrorCode::Timeout => {}
             Err(error) => return Err(error),
         }
 
