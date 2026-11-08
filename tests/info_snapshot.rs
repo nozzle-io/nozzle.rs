@@ -1,5 +1,5 @@
 //! Real same-process Metal metadata checks, not pixel or cross-process evidence.
-//! These use only the existing public API; no synthetic native handles/counters.
+//! These use the public API; no synthetic native handles/counters.
 #![cfg(target_os = "macos")]
 
 use nozzle::{AcquireDesc, BackendType, ErrorCode, Receiver, ReceiverDesc, Sender, SenderDesc};
@@ -33,6 +33,11 @@ fn observed_sender_closure_is_disconnected_with_last_known_identity() {
         .expect("initial connected metadata");
     let sender_info = sender.info().expect("initial sender metadata");
     assert!(receiver.is_connected());
+    let initial = receiver.connection_snapshot().expect("initial snapshot");
+    assert!(initial.connected);
+    assert_eq!(initial.info.name, name);
+    assert_eq!(initial.info.application_name, application);
+    assert_eq!(initial.info.id, sender_info.id);
     assert_eq!(retained.id, sender_info.id);
     assert!(!retained.id.is_empty());
 
@@ -60,6 +65,13 @@ fn observed_sender_closure_is_disconnected_with_last_known_identity() {
         last_known.id
     );
     assert!(!connected, "observed SenderClosed must report disconnected");
+    let closed = receiver.connection_snapshot().expect("closed snapshot");
+    assert!(!closed.connected);
+    assert_eq!(closed.info.name, name);
+    assert_eq!(closed.info.application_name, application);
+    assert_eq!(closed.info.id, initial.info.id);
+    assert_eq!(closed.info.backend, BackendType::Metal);
+    assert!(initial.connected, "retained snapshot must not change");
 }
 
 #[test]
@@ -67,6 +79,7 @@ fn metadata_strings_remain_owned_after_later_calls_and_handle_destruction() {
     let (sender, receiver, name, application) = create_pair("owned");
     let sender_info = sender.info().expect("owned sender metadata");
     let receiver_info = receiver.connected_info().expect("owned receiver metadata");
+    let snapshot = receiver.connection_snapshot().expect("owned snapshot");
     assert_eq!(sender.info().expect("later sender call").id, sender_info.id);
     assert_eq!(
         receiver.connected_info().expect("later receiver call").id,
@@ -83,5 +96,9 @@ fn metadata_strings_remain_owned_after_later_calls_and_handle_destruction() {
     assert!(!sender_info.id.is_empty());
     assert_eq!(sender_info.backend, BackendType::Metal);
     assert_eq!(receiver_info.backend, BackendType::Metal);
+    assert!(snapshot.connected);
+    assert_eq!(snapshot.info.name, name);
+    assert_eq!(snapshot.info.application_name, application);
+    assert_eq!(snapshot.info.id, sender_info.id);
     println!("RUST_INFO_OWNED PASS retained UTF-8 identity after both handles dropped");
 }

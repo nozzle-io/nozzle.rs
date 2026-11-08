@@ -283,6 +283,14 @@ pub struct ConnectedSenderInfo {
     pub native_format_modifier: u64,
 }
 
+/// Owned metadata and last-observed connection state from one native snapshot.
+/// This is not a fresh liveness check; identity is retained after disconnect.
+#[derive(Debug, Clone)]
+pub struct ConnectionSnapshot {
+    pub connected: bool,
+    pub info: ConnectedSenderInfo,
+}
+
 #[derive(Debug, Clone)]
 pub struct FrameInfo {
     pub frame_index: u64,

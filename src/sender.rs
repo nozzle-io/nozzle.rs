@@ -133,20 +133,16 @@ impl Sender {
         check(rc as _)
     }
 
+    /// Returns owned metadata that remains valid after later calls or sender destruction.
     pub fn info(&self) -> Result<SenderInfo> {
-        let mut info = ffi::NozzleSenderInfo {
-            name: ptr::null(),
-            application_name: ptr::null(),
-            id: ptr::null(),
-            backend: 0,
-        };
-        let rc = unsafe { ffi::nozzle_sender_get_info(self.owner.raw, &mut info) };
+        let mut info: ffi::NozzleSenderInfoSnapshot = unsafe { mem::zeroed() };
+        let rc = unsafe { ffi::nozzle_sender_get_info_snapshot(self.owner.raw, &mut info) };
         check(rc as _)?;
 
         Ok(SenderInfo {
-            name: crate::cstr_to_string(info.name),
-            application_name: crate::cstr_to_string(info.application_name),
-            id: crate::cstr_to_string(info.id),
+            name: crate::fixed_cstr_to_string(&info.name),
+            application_name: crate::fixed_cstr_to_string(&info.application_name),
+            id: crate::fixed_cstr_to_string(&info.id),
             backend: crate::types::BackendType::from_raw(info.backend as _),
         })
     }
