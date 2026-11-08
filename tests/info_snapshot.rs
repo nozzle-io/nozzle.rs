@@ -13,7 +13,10 @@ fn create_pair(case: &str) -> (Sender, Receiver, String, String) {
         ..Default::default()
     })
     .expect("real Metal sender required; no backend skip");
-    assert_eq!(sender.info().expect("sender metadata").backend, BackendType::Metal);
+    assert_eq!(
+        sender.info().expect("sender metadata").backend,
+        BackendType::Metal
+    );
     let receiver = Receiver::create(&ReceiverDesc {
         name: name.clone(),
         ..Default::default()
@@ -25,7 +28,9 @@ fn create_pair(case: &str) -> (Sender, Receiver, String, String) {
 #[test]
 fn observed_sender_closure_is_disconnected_with_last_known_identity() {
     let (sender, mut receiver, name, application) = create_pair("closed");
-    let retained = receiver.connected_info().expect("initial connected metadata");
+    let retained = receiver
+        .connected_info()
+        .expect("initial connected metadata");
     let sender_info = sender.info().expect("initial sender metadata");
     assert!(receiver.is_connected());
     assert_eq!(retained.id, sender_info.id);
