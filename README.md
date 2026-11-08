@@ -74,6 +74,28 @@ let info = frame.info()?;
 println!("{}x{} frame #{}", info.width, info.height, info.frame_index);
 ```
 
+### Metadata Snapshots
+
+`sender.info()` returns owned sender metadata. `receiver.connection_snapshot()`
+returns `ConnectionSnapshot { connected, info }`, copying connection state and
+all connected-sender metadata together under the native receiver lock. Strings
+are copied from bounded inline C arrays into owned Rust strings, preserving the
+existing lossy UTF-8 decoding behavior. Returned values remain valid after later
+calls and handle destruction.
+
+`connected` is the receiver's **last-observed** state, not a fresh liveness check
+or a reconnect attempt. After acquisition observes a disconnect, the snapshot
+reports `connected == false` while retaining last-known sender identity.
+`connected_info()` preserves its existing metadata fields and returns the
+snapshot's `info`; success does not imply a connection. `is_connected()` reads
+the snapshot flag and returns false on retrieval error. A sender can exit after
+the receiver last observed it, so use acquisition errors to observe closure.
+
+Portable unit tests cover bounded string decoding and synthetic full-metadata
+conversion. The macOS integration tests require real Metal and check same-process
+sender destruction, last-known identity, and owned UTF-8 strings. These tests do
+not establish Windows/Linux runtime, cross-process, or GPU pixel correctness.
+
 ### Discovery
 
 ```rust
@@ -145,7 +167,7 @@ All nozzle formats are exposed as `TextureFormat` variants:
 - **macOS**: Links Metal, IOSurface, Foundation, CoreFoundation, Accelerate, OpenGL, Objective-C, and C++ runtime dependencies automatically.
 - **Windows**: Links d3d11, dxgi, opengl32, bcrypt, ole32, and user32 automatically.
 - **Linux**: Links libdrm, gbm, EGL, OpenGL, and the C++ runtime; install the matching development packages before building.
-- The crate is thread-safe — `Sender` and `Receiver` implement `Send + Sync`.
+- `Sender` and `Receiver` implement `Send + Sync`. Metadata getters copy caller-owned snapshots; this is not a blanket thread-safety guarantee for GPU context or mapping operations.
 
 ## License
 
