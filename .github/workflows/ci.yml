@@ -44,7 +44,8 @@ jobs:
           cp "$list" "$RUNNER_TEMP/common.txt"
           { tail -n 1 "$RUNNER_TEMP/common.txt"; sed '$d' "$RUNNER_TEMP/common.txt"; } > "$list"
           cargo build -vv 2>&1 | tee "$RUNNER_TEMP/rebuild.log"
-          grep -E 'Running .*build-script-build' "$RUNNER_TEMP/rebuild.log"
+          # Cargo versions use either spelling; match the executed basename, not a substring.
+          grep -E '^[[:space:]]*Running `[^`]*/(build-script-build|build_script_build)`[[:space:]]*$' "$RUNNER_TEMP/rebuild.log"
           grep 'Configuring done' "$RUNNER_TEMP/rebuild.log"
           cp "$RUNNER_TEMP/common.txt" "$list"
 
